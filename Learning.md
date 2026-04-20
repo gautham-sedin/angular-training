@@ -1,0 +1,378 @@
+Angular → JS framework. 
+
+## Features of Angular-
+
+1. Template
+2. Data binding
+3. Form
+4. Routing
+5. Observables
+6. PWA
+
+# Introduction to Typescript
+
+Typescript → strongly typed prog lang. Superset of JS. 
+
+### How to maximize type safety-
+
+- Enable strict mode - In `tsconfig.json` → Turn on `strict: true` for strongest available checks.
+- Avoid any and Type assertions - Using `any` or forced casts -(e.g., value as string)
+- Use Type narrowing - use Type guards like `typeof` or `instanceof` instead of forcing the types.
+- Keeps the code free from undefined and null errors.
+
+### Steps to create a typescript file -
+
+- `npm init`  to initialize npm and create a package.json file
+- Install typescript with `npm i typescript`
+- Initialize typescript with `tsc --init`
+- To compile typescript files `tsc`
+
+**SPA** - The whole resource will be sent to the client browser as soon as the first request is being made. and after requests will be handled within client browser only. 
+
+Always its better to enable strict mode in the tsconfig.json file - 
+
+```tsx
+{
+	"strict": true,                 /* Enables all the strict type-checking options. */
+}
+```
+
+This will promptly generate error if you try to access a variable that is not defined. 
+
+### Examples of declaring and accessing variables -
+
+```tsx
+let empList : string[];
+
+empList = ["User1", "User2", "User3", "User4"];
+
+let depList : Array<number>;
+
+numList = [1, 2, 3, 4, 5];
+```
+
+## Functions
+
+There are diff ways to write and define function in typescript - 
+
+```tsx
+// Using normal function declaration
+function add(num1: number, num2: number) : number {
+	return num1 + num2;
+}
+
+// Using arrow functions
+const sub = (num1: number, num2: number) : number => num1 - num2;
+```
+
+Let’s try a function with reduce function in it -
+
+```tsx
+function add_with_reduce(num1: number, num2: number, ...num3: number[]) : number {
+	return num1 + num2 + num3.reduce((a, b) => a + b, 0);
+}
+
+let numbers = [1, 2, 3, 4, 5]
+console.log(add_with_reduce(2, 3, ...numbers));
+// Other ways -
+console.log(add_with_reduce(2, 3, 1, 2, 3, 4, 5, 6, 7)); // num1 - 2, num2 - 3, num3 - rest of the values from (1, 2, 3, 4, ...)
+
+/*
+	Output: 20
+*/
+```
+
+## Classes & Related concepts
+
+Let’s write a simple class file with a class name called - Employee in which we can declare few fields and then try to call using an object that is initialized later - 
+
+We will learn - Intro to class - Creating class & its instance - Class props - Member visibs - Static members.
+
+**class.ts**
+
+```tsx
+class Employee {
+	#id!: number;               // You can use a hash symbol to make a variable private
+	name!: string;
+	address!: string;
+	
+	// We can use constructors also to define the class fields
+	constructor(id: number, name: string, address: string) {
+		this.address = address;
+		this.id = id;
+		this.name = name;
+	}
+	
+	static getEmployeeCount(): number {
+		return 50;
+	}
+}
+
+let john = new Employee();
+
+john.id = 1;
+john.name = 'John';
+john.address = '1 Highway';
+
+console.log(john);
+
+// Using constructor to initialize variables
+let aravind = new Employee(102, 'Aravind', 'NorthStreet New Jersey');
+
+console.log(aravind);
+
+Employee.getEmployeeCount(); // You can call static members without creating an instance. That's the actual meaning of static.
+
+/*
+	Running `node class` in the terminal will prompt this output- Output:
+	Employee { id: 1, name: 'John', address: '1 Highway' }
+*/
+```
+
+**Getter & Setter methods in ts-**
+
+```tsx
+class Employee {
+	#id!: number;               // You can use a hash symbol to make a variable private
+	name!: string;
+	address!: string;
+	
+	// ... Other implementations
+	
+	get empId(): number {
+		return this.#id;
+	}
+	
+	set empId(id: number) {
+		this.#id = id;
+	} 
+}
+```
+
+You can also explicitly declare interfaces - that can also act like a data type in the declarations - 
+
+**class.ts-**
+
+```tsx
+interface Address {
+	street: string;
+	city?: string;       // To create optional members in the interface 
+	state: string;
+	pincode: string;
+};
+
+class Employee {
+	#id: number;
+	
+	protected name: string;
+	
+	address: Address;
+	
+	// Other implementations including setters & getters
+}
+
+let john = new Employee(1, 'John', {
+	street: "Highway street",
+	city: "Chennai",
+	state: "TN",
+	pincode: "700089",
+});
+```
+
+## Decorators
+
+- You can actually modify the behavior of the class, method or property at runtime.
+
+Decorators - are something that you might be able to see on the top of the class or object, with `@` symbol.
+
+```tsx
+// Examples of decorators - 
+@Component
+@Entity
+```
+
+Learning some of the properties in the `tsconfig.json` file-
+
+```tsx
+"outDir": "./dist"
+```
+
+- This properties is to Redirect all the output files in to one single folder called ./dist so that its easy to manage the output files alone.
+
+```tsx
+"sourceMap": true
+```
+
+- This will generate files that will map all the browser compiling js files to corresponding ts files that will help us debug the whole application seamlessly.
+
+---
+
+# Angular
+
+Angular is not old NgModule-heavy framework. It has evolved into a component-first, standalone-driven, reactive UI framework. 
+
+Here I have created is a 10 Day detailed Angular course that comprises of 4 different sections in each days that represents different sections of learning.
+
+## Day 1 – Section A: Foundations (Angular CLI + Standalone Architecture)
+
+### Angular CLI
+
+Install CLI-
+
+```bash
+npm install -g @angular/cli
+```
+
+To create new project - 
+
+```bash
+ng new project-mgmt
+```
+
+During setup -
+
+- ✔ Choose **Standalone Components → YES**
+- ✔ Routing → YES
+- ✔ Style → CSS (or SCSS if you prefer)
+
+To run the project - 
+
+```bash
+ng serve
+```
+
+Open the endpoint - `https://localhost:4200`
+
+**StandAlone Component-**
+
+```tsx
+import { Component } from "@angular/core";
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [], // other components, directives
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {}
+```
+
+| Property | Purpose |
+| --- | --- |
+| `selector` | HTML tag to use component |
+| `standalone` | Enables module-less architecture |
+| `imports` | Explicit dependency system |
+| `template` | UI structure |
+| `styles` | Component styling |
+|  |  |
+
+## Day 1 – Section B: Real-World Example (Applying Foundations)
+
+Before adding features you need a clean, scalable foundation - with root layout, reusable UI sections. 
+
+### Component Architecture -
+
+```tsx
+AppComponent (Root)
+ ├── NavbarComponent
+ ├── SidebarComponent
+ └── DashboardComponent
+```
+
+**To generate these components in UI way-**
+
+## Day 1 – Section C: Micro-Project (Standalone Layout with Separate Files)
+
+Goal of the micro project-
+
+Build a basic dashboard layout using -
+
+- StandAlone components
+- Proper folder structure
+- Seperate .ts, .html, .css files
+
+Folder structure - 
+
+```bash
+src/app/
+ ├── layout/
+ │   ├── navbar/
+ │   │   ├── navbar.component.ts
+ │   │   ├── navbar.component.html
+ │   │   └── navbar.component.css
+ │   ├── sidebar/
+ │   │   ├── sidebar.component.ts
+ │   │   ├── sidebar.component.html
+ │   │   └── sidebar.component.css
+ ├── features/
+ │   └── dashboard/
+ │       ├── dashboard.component.ts
+ │       ├── dashboard.component.html
+ │       └── dashboard.component.css
+ ├── app.component.ts
+ ├── app.component.html
+ └── app.component.css
+```
+
+Refer the day1-dashboard file for the project file to fork and contribute on the project.
+
+---
+
+## Day 2 – Section A: Templates (Control Flow + Data Binding)
+
+Angular mostly concentrates on the Dynamic UI engine, instead being traditional static HTML templates. This module covers - 
+
+- Modern control flow
+- Data binding(Property, Event, Interpolation)
+- Rendering dynamic data
+
+### Interpolation - {{ }}
+
+Angular inserting dynamic data into the UI is called Interpolation. 
+
+**typescript file-**
+
+```tsx
+title = 'Project Dashboard';
+```
+
+**html file-**
+
+```html
+<h1> {{ title }} </h1>
+```
+
+### Property Binding- [ ]
+
+Used to bind values to HTML attributes or DOM properties like - disabled.
+
+**typescript file-**
+
+```tsx
+isDisabled = true;
+```
+
+**html file-**
+
+```html
+<button [disabled]="isDisabled">Click Me</button>
+```
+
+### Event Binding- ( )
+
+Used to handle user interactions like - click functions.
+
+**typescript file-**
+
+```tsx
+onClick() {
+	console.log('Button clicked');	
+}
+```
+
+**html file-**
+
+```html
+<button (click)="onClick">Click</button>
+```

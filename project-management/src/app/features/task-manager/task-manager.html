@@ -1,0 +1,38 @@
+<div class="task-container">
+
+  <h2>Task Manager</h2>
+
+  <!-- Add Task -->
+  <div class="input-section">
+    <input 
+      type="text" 
+      placeholder="Enter new task..." 
+      [(ngModel)]="newTask"
+    />
+    <button (click)="addTask()">Add</button>
+  </div>
+
+  <!-- Toggle -->
+  <button (click)="toggleCompletedVisibility()">
+    Toggle Completed Tasks
+  </button>
+
+  <!-- Task List -->
+  <ul>
+    @for (task of tasks; track task.id) {
+
+      @if (showCompleted || !task.completed) {
+
+        <li 
+          (click)="toggleTask(task)"
+          [class.completed]="task.completed"
+        >
+          {{ task.title }}
+        </li>
+
+      }
+
+    }
+  </ul>
+
+</div>

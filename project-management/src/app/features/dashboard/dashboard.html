@@ -1,9 +1,25 @@
 <div class="dashboard">
+
   <h2>Dashboard Overview</h2>
 
-  <div class="cards">
-    <div class="card">Total Projects: 5</div>
-    <div class="card">Tasks Completed: 12</div>
-    <div class="card">Pending Tasks: 8</div>
-  </div>
+  <!-- Toggle Button -->
+  <button (click)="toggleCompleted()">
+    Toggle Completed Projects
+  </button>
+
+  <!-- Project List -->
+  <ul>
+    @for (project of projects; track project.id) {
+
+      @if (showCompleted || project.status !== 'completed') {
+
+        <li [class.completed]="project.status === 'completed'">
+          {{ project.name }} - {{ project.status }}
+        </li>
+
+      }
+
+    }
+  </ul>
+
 </div>

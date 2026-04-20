@@ -13,14 +13,14 @@ Angular → JS framework.
 
 Typescript → strongly typed prog lang. Superset of JS. 
 
-### How to maximize type safety-
+### How to maximize type safety
 
 - Enable strict mode - In `tsconfig.json` → Turn on `strict: true` for strongest available checks.
 - Avoid any and Type assertions - Using `any` or forced casts -(e.g., value as string)
 - Use Type narrowing - use Type guards like `typeof` or `instanceof` instead of forcing the types.
 - Keeps the code free from undefined and null errors.
 
-### Steps to create a typescript file -
+### Steps to create a typescript file
 
 - `npm init`  to initialize npm and create a package.json file
 - Install typescript with `npm i typescript`
@@ -39,7 +39,7 @@ Always its better to enable strict mode in the tsconfig.json file -
 
 This will promptly generate error if you try to access a variable that is not defined. 
 
-### Examples of declaring and accessing variables -
+### Examples of declaring and accessing variables
 
 ```tsx
 let empList : string[];
@@ -53,7 +53,7 @@ numList = [1, 2, 3, 4, 5];
 
 ## Functions
 
-There are diff ways to write and define function in typescript - 
+There are diff ways to write and define function in typescript- 
 
 ```tsx
 // Using normal function declaration
@@ -265,13 +265,12 @@ export class AppComponent {}
 | `imports` | Explicit dependency system |
 | `template` | UI structure |
 | `styles` | Component styling |
-|  |  |
 
 ## Day 1 – Section B: Real-World Example (Applying Foundations)
 
 Before adding features you need a clean, scalable foundation - with root layout, reusable UI sections. 
 
-### Component Architecture -
+### Component Architecture
 
 ```tsx
 AppComponent (Root)
@@ -281,6 +280,104 @@ AppComponent (Root)
 ```
 
 **To generate these components in UI way-**
+
+### Real-world Example Application
+
+### Step 1: Generate Components (CLI way)
+
+```bash
+ng generate component layout/navbar--standalone
+ng generate component layout/sidebar--standalone
+ng generate component features/dashboard--standalone
+```
+
+### Step 2: Navbar Component (Example)
+
+```tsx
+import {Component }from'@angular/core';
+
+@Component({
+  selector:'app-navbar',
+  standalone:true,
+  template:`
+    <nav style="background:#1e293b; color:white; padding:10px;">
+      <h2>Project Dashboard</h2>
+    </nav>
+  `
+})
+exportclassNavbarComponent {}
+```
+
+---
+
+### Step 3: Sidebar Component
+
+```tsx
+import {Component }from'@angular/core';
+
+@Component({
+  selector:'app-sidebar',
+  standalone:true,
+  template:`
+    <aside style="width:200px; background:#334155; color:white; height:100vh;">
+      <ul>
+        <li>Dashboard</li>
+        <li>Projects</li>
+        <li>Tasks</li>
+      </ul>
+    </aside>
+  `
+})
+exportclassSidebarComponent {}
+```
+
+---
+
+### Step 4: Dashboard Component
+
+```tsx
+import {Component }from'@angular/core';
+
+@Component({
+  selector:'app-dashboard',
+  standalone:true,
+  template:`
+    <div style="padding:20px;">
+      <h3>Welcome to Dashboard</h3>
+      <p>Your projects overview will appear here.</p>
+    </div>
+  `
+})
+exportclassDashboardComponent {}
+```
+
+---
+
+### Step 5: Compose Everything in Root (`AppComponent`)
+
+This is where **Standalone architecture shines**.
+
+```tsx
+import {Component }from'@angular/core';
+import {NavbarComponent }from'./layout/navbar/navbar.component';
+import {SidebarComponent }from'./layout/sidebar/sidebar.component';
+import {DashboardComponent }from'./features/dashboard/dashboard.component';
+
+@Component({
+  selector:'app-root',
+  standalone:true,
+  imports: [NavbarComponent,SidebarComponent,DashboardComponent],
+  template:`
+    <app-navbar></app-navbar>
+
+    <div style="display:flex;">
+      <app-sidebar></app-sidebar>
+      <app-dashboard></app-dashboard>
+    </div>
+  `
+})
+exportclassAppComponent {}
+```
 
 ## Day 1 – Section C: Micro-Project (Standalone Layout with Separate Files)
 
@@ -376,3 +473,155 @@ onClick() {
 ```html
 <button (click)="onClick">Click</button>
 ```
+
+### Two-way Binding-
+
+In modern angular(stand-alone first), you’ll rely on `[(ngModel)]` heavily, (Reactive forms > Template forms)
+
+### Modern Control Flow -
+
+**`@if` (Condition Rendering)**
+
+**typescript code-**
+
+```tsx
+isLoggedIn = true
+```
+
+**html code-**
+
+```html
+@if (isLoggedIn) {
+	<p>Welcome Back!</p>
+} else {
+	<p>Please login!</p>
+}
+```
+
+**`@for` (Looping Data)**
+
+**typescript code-**
+
+```tsx
+tasks = ['Design UI', 'Build API', 'Test App']
+```
+
+**html code-**
+
+```html
+@for (task of tasks; track $index) {
+	<li>{{ task }}</li>
+}
+```
+
+`@switch` **(Multiple conditions)**
+
+**typescript code-**
+
+```tsx
+status = 'pending
+```
+
+**html code-**
+
+```html
+@switch (status) {
+  @case ('completed') {
+    <p>Done</p>
+  }
+  @case ('pending') {
+    <p>In Progress</p>
+  }
+  @default {
+    <p>Unknown</p>
+  }
+}
+```
+
+## **Day 2 – Section B: Real-World Example (Dynamic Dashboard UI)**
+
+The dashboard is very static right now. Let’s add some interactions and make the values dynamic.
+
+### Requirements
+
+- Display list of projects
+- Show their status
+- Allow users to toggle visibility of completed projects
+- Render UI dynamically using modern Angular control flow
+
+### Step 1: Define data in Component
+
+```tsx
+projects = [
+	{ id: 1, name: 'Portfolio Website', status: 'active' },
+	{ id: 2, name: 'AI Chat App', status: 'completed' },
+  { id: 3, name: 'E-commerce Platform', status: 'active' }
+];
+
+showCompleted = true;
+```
+
+### Step 2: Render Projects using `@for`
+
+```html
+<h3>Projects</h3>
+
+<ul>
+  @for (project of projects; track project.id) {
+    <li>
+      {{ project.name }} - {{ project.status }}
+    </li>
+  }
+</ul>
+```
+
+### Step 3: Conditional Rendering `@if`
+
+```html
+@for (project of projects; track project.id) {
+  @if (showCompleted || project.status !== 'completed') {
+    <li>
+      {{ project.name }} - {{ project.status }}
+    </li>
+  }
+}
+```
+
+### Step 4: Add Interaction (Event Binding)
+
+```html
+<button (click)="toggleCompleted()">
+	Toggle Completed Projects
+</button>
+```
+
+```tsx
+toggleCompleted() {
+	this.showCompleted = !this.showCompleted;
+}
+```
+
+### Step 5: Improve UI with Property Binding
+
+```html
+<li [style.color]="project.status === 'completed' ? 'gray' : 'black'">
+	{{ project.name }} - {{ project.status }}
+</li>
+```
+
+## Day 2 – Section C: Micro-Project (Dynamic Task Manager)
+
+**Goal of This Micro-Project-**
+
+Build a **Task Manager UI** using:
+
+- `@for` → render tasks
+- `@if` → conditional display
+- Event Binding → user interaction
+- Property Binding → dynamic styling
+
+👉 This is your **first interactive Angular feature**
+
+Refer the day2-task-manager file for the project file to fork and contribute on the project.
+
+---

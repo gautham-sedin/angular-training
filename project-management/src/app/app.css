@@ -1,0 +1,10 @@
+.app-container {
+  display: flex;
+  height: calc(100vh - 60px);
+}
+
+.main-content {
+  flex: 1;
+  background-color: #f1f5f9;
+  overflow-y: auto;
+}

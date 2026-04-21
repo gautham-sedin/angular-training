@@ -2,6 +2,31 @@
   padding: 20px;
 }
 
+.cards {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.input-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  justify-content: flex-end;
+}
+
+input {
+  padding: 8px;
+  height: fit-content;
+  flex: 1;
+}
+
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
 ul {
   margin-top: 15px;
   padding: 0;
@@ -13,13 +38,12 @@ li {
   border-bottom: 1px solid #ddd;
 }
 
+li:hover {
+  cursor: pointer;
+  background: #f1f5f9;
+}
+
 .completed {
   color: gray;
   text-decoration: line-through;
-}
-
-button {
-  margin: 10px 0;
-  padding: 8px 12px;
-  cursor: pointer;
 }

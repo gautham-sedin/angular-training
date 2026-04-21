@@ -2,23 +2,38 @@
 
   <h2>Dashboard Overview</h2>
 
-  <!-- Toggle Button -->
+  <!-- Stats -->
+  <div class="cards">
+    <div class="card">Total: {{ totalProjects() }}</div>
+    <div class="card">Active: {{ activeProjects() }}</div>
+    <div class="card">Completed: {{ completedProjects() }}</div>
+  </div>
+
+  <!-- Input -->
+  <div class="input-section">
+    <input
+      type="text"
+      [value]="newProject()"
+      (input)="updateInput($any($event.target).value)"
+      placeholder="Enter new project..."
+    />
+    <button (click)="addProject()">Add Project</button>
+  </div>
+
+  <!-- Toggle -->
   <button (click)="toggleCompleted()">
     Toggle Completed Projects
   </button>
 
   <!-- Project List -->
   <ul>
-    @for (project of projects; track project.id) {
-
-      @if (showCompleted || project.status !== 'completed') {
-
-        <li [class.completed]="project.status === 'completed'">
-          {{ project.name }} - {{ project.status }}
-        </li>
-
-      }
-
+    @for (project of filteredProjects(); track project.id) {
+      <li
+        (click)="toggleProjectStatus(project.id)"
+        [class.completed]="project.status === 'completed'"
+      >
+        {{ project.name }} - {{ project.status }}
+      </li>
     }
   </ul>
 

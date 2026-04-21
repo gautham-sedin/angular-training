@@ -213,6 +213,8 @@ Angular is not old NgModule-heavy framework. It has evolved into a component-fir
 
 Here I have created is a 10 Day detailed Angular course that comprises of 4 different sections in each days that represents different sections of learning.
 
+# Day1
+
 ## Day 1 – Section A: Foundations (Angular CLI + Standalone Architecture)
 
 ### Angular CLI
@@ -415,6 +417,8 @@ src/app/
 Refer the day1-dashboard file for the project file to fork and contribute on the project.
 
 ---
+
+# Day2
 
 ## Day 2 – Section A: Templates (Control Flow + Data Binding)
 
@@ -623,5 +627,161 @@ Build a **Task Manager UI** using:
 👉 This is your **first interactive Angular feature**
 
 Refer the day2-task-manager file for the project file to fork and contribute on the project.
+
+---
+
+# Day 3
+
+## Day 3 – Section A: Signals (Deep Dive into Angular Reactivity)
+
+Dirty checking in Angular refers to the process where the framework compares the current value of a model variable against its previous value to determine if a change has occurred.
+
+Before Signals, Angular relies on - Dirty checking for the state management. It’s built-in reactive state system.
+
+It allows Angular to -
+
+- Track exactly what changed
+- Updates only what is needed
+- Eliminate unnecessary rendering
+
+A **Signal is a reactive variable** that notifies Angular when its value changes.
+
+### Creating a Signal
+
+```tsx
+import { signal } from '@angular/core';
+
+count = signal(0);
+```
+
+**Reading the signal**
+
+```tsx
+count()
+```
+
+**Updating a signal**
+
+```tsx
+this.count.set(5);
+// Or use the other method-
+this.count.update(value => value + 1);
+```
+
+### Updated Signals
+
+Used when one variable is depends on another
+
+```tsx
+import { computed } from '@angular/core';
+
+doubleCount = computed(() => this.count * 2);
+```
+
+### Effects(Side Effects)
+
+Run logics when a signal changes
+
+```tsx
+import { effect } from '@angular/core';
+
+effect(() => {
+	console.log('Count changed:', this.count());
+});
+```
+
+> Use cases:
+> 
+> - Logging
+> - API calls
+> - Local storage sync
+> - Debugging
+
+**Signals in Templates**
+
+```tsx
+<h2>{{ count() }}</h2>
+<button (click)="count.update(c => c + 1)">
+	Increment
+</button>
+```
+
+## Day 3 – Section B: Real-World Example (Signals in Your Dashboard)
+
+The dashboard is currently very minimal - Arrays are plain vars, UI updates depends on writing logics. Let’s change the dashboard into reactive system using signals.
+
+### Step 1: Convert states into Signals
+
+```tsx
+import { Component, signal, computed } from '@angular/core';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css']
+})
+export class DashboardComponent {
+
+  projects = signals([
+	  { id: 1, name: 'Portfolio Website', status: 'active' },
+	  { id: 2, name: 'AI Chat App', status: 'completed' },
+	  { id: 3, name: 'E-commerce Platform', status: 'active' },
+  ]);
+  
+  showCompleted = signal(true);
+}
+```
+
+### Step 2: Derived state with `compute()`
+
+```tsx
+totalProjects = computed(() => this.projects().length);
+
+completedProjects = computed(() => 
+	this.project().filter(p => p.status === 'completed').length
+);
+
+activeProjects = computed(() => 
+	this.project().filter(p => p.status === 'active').length
+);
+```
+
+### Step 3: Filtered View(Reactive)
+
+```tsx
+filteredProjects = computed(() =>
+	this.projects().filter(p =>
+		this.showCompleted() || p.status !== 'completed'
+	)
+);
+```
+
+### Step 4: Update state(Reactive way)
+
+```tsx
+toggleCompleted() {
+	this.showCompleted.update(v != v);
+}
+```
+
+| Feature | Before | After |
+| --- | --- | --- |
+| State | Plain variables | Signals |
+| Derived data | Manual | `computed()` |
+| UI updates | Manual logic | Automatic |
+| Scalability | Low | High |
+
+### Day 3 – Section C: Micro-Project (Signal-Based Task Manager)
+
+Goal-
+
+Rebuild the task manager using Signals so that -
+
+- State is reactive
+- UI updates automatically
+- No manual syncing bugs
+
+Refer the day3-task-manager for the project to fork and contribute it.
 
 ---

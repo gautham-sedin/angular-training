@@ -1,0 +1,16 @@
+<div class="task-board">
+
+  <h2>Task Board</h2>
+
+  @for (task of tasks(); track task.id) {
+    <div 
+      appHighlight
+      class="task-card"
+      [class.completed]="task.completed"
+    >
+      <h4>{{ task.title }}</h4>
+      <p>Priority: {{ task.priority | priority }}</p>
+    </div>
+  }
+
+</div>

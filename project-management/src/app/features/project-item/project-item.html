@@ -1,7 +1,9 @@
 <div
+  appHighlight
   class="project-item"
   (click)="onToggle()"
   [class.completed]="project().status === 'completed'"
 >
-  {{ project().name }} -> {{ project().status }}
+  <span class="name">{{ project().name }}</span>
+  <span class="status">{{ project().status | status }}</span>
 </div>

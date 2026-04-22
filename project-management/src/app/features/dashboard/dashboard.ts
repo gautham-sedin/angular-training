@@ -1,10 +1,11 @@
 import { Component, signal, computed } from '@angular/core';
+import { ProjectList } from '../project-list/project-list';
 import { TaskManager } from '../task-manager/task-manager';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [TaskManager],
+  imports: [TaskManager, ProjectList],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })

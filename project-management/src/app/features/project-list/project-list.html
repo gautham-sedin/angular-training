@@ -1,0 +1,10 @@
+<div class="project-list">
+
+  @for (project of projects(); track project.id) {
+    <app-project-item
+      [project]="project"
+      (toggle)="onToggle($event)"
+    ></app-project-item>
+  }
+
+</div>

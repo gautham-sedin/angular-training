@@ -25,16 +25,13 @@
     Toggle Completed Projects
   </button>
 
-  <!-- Project List -->
-  <ul>
-    @for (project of filteredProjects(); track project.id) {
-      <li
-        (click)="toggleProjectStatus(project.id)"
-        [class.completed]="project.status === 'completed'"
-      >
-        {{ project.name }} - {{ project.status }}
-      </li>
-    }
-  </ul>
+  <!-- Clean Component Usage -->
+  <app-project-list
+    [projects]="filteredProjects()"
+    (toggleProject)="toggleProjectStatus($event)"
+  ></app-project-list>
+
+  <!-- Tasks Manager for each of whole project management -->
+   <app-task-manager></app-task-manager>
 
 </div>

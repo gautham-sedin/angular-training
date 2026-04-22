@@ -699,7 +699,7 @@ effect(() => {
 
 **Signals in Templates**
 
-```tsx
+```html
 <h2>{{ count() }}</h2>
 <button (click)="count.update(c => c + 1)">
 	Increment
@@ -783,5 +783,334 @@ Rebuild the task manager using Signals so that -
 - No manual syncing bugs
 
 Refer the day3-task-manager for the project to fork and contribute it.
+
+---
+
+# Day 4
+
+## **Day 4 – Section A: Component Communication (Inputs, Outputs, Signal Inputs)**
+
+App will have tree of components-
+
+```bash
+AppComponent
+ └── DashboardComponent
+       ├── ProjectListComponent (coming)
+       └── TaskManagerComponent
+```
+
+| Direction | Technique |
+| --- | --- |
+| Parent → Child | `@Input` / `input()` |
+| Child → Parent | `@Output` / `output()` |
+| Shared State | (Later → Services) |
+
+### 1. Parent → Child Communication
+
+**In traditional `@Input()` - Parent sends data → Child receives it.**
+
+**Child component**
+
+```tsx
+import { Component, Input } from '@angular/core';
+
+@Component({
+	selector: 'app-child',
+	standalone: true,
+	imports: [],
+	template: `<p>{{ message }}</p>`
+})
+
+export class ChildComponent {
+	@Input() message!: string;
+}
+```
+
+**Parent template**
+
+```html
+<app-child [message]="'Hello from Parent'"></app-child>
+```
+
+**In Modern Signal-based, `input()`** 
+
+```tsx
+import { Component, input } from '@angular/core';
+
+@Component({
+  selector: 'app-child',
+  standalone: true,
+  template: `<p>{{ message() }}</p>`
+})
+export class ChildComponent {
+  message = input<string>();
+}
+```
+
+```html
+<app-child [message]="parentMessage"></app-child>
+```
+
+### 2. Child → Parent Communication
+
+**In traditional `@Output` Child emits event → Parent listens**
+
+**Child component**
+
+```tsx
+import { Component, Output, EventEmitter } from '@angular/core';
+
+@Component({
+	selector: 'app-child',
+	standalone: true,
+	template: `<button (click)="send()">Send</button>`
+})
+
+export class ChildComponent {
+	@Output notify = new EventEmitter<string>();
+	
+	send() {
+		this.notify.emit('Hello Parent');
+	}
+}
+```
+
+**Parent component**
+
+```html
+<app-child (notify)="handleMessage($event)"></app-child>
+
+handleMessage(msg: string) {
+	console.log(msg);
+}
+```
+
+**In Modern way, `output()`** 
+
+```tsx
+import { Component, output } from '@angular/core';
+
+@Component({
+	selector: 'app-child',
+	standalone: true,
+	template: `<button (click)="send()">Send</button>`
+})
+
+export class ChildComponent {
+	notify = output<string>();
+	
+	send() {
+		this.notify.emit('Hello Parent!');
+	}
+}
+```
+
+### 3. Combined Flow
+
+**Sample flow-**
+
+```bash
+Parent -> sends projects list -> Child renders
+Child -> user clicks -> emits event -> Parent updates state
+```
+
+| Component | Responsibility |
+| --- | --- |
+| Dashboard | Holds state (signals) |
+| ProjectList | Displays projects |
+| ProjectItem | Handles click/toggle |
+
+## Day 4 – Section B: Real-World Example (Breaking Dashboard into Communicating Components)
+
+Current, working DashboardComponent is doing over work - Holds project state - Renders project list - Handles interactions.
+
+God components like these hard to scale. Component composition are maintainable systems.
+
+### Responsibility split table
+
+| Component | Responsibility |
+| --- | --- |
+| Dashboard | Holds signals (projects, filters) |
+| ProjectList | Displays projects |
+| ProjectList | Emits user actions |
+
+### Step 1: Generate New Component
+
+```bash
+ng g c features/project-list --standalone
+```
+
+### Step 2: Child Component (ProjectList)
+
+**project-list.ts**
+
+```tsx
+import { Component, input, output } from '@angular/core';
+
+@Component({
+	selector: 'app-project-list',
+	standalone: true,
+	templateUrl: './project-list.html',
+	styleUrls: ['./project-list.css']
+})
+
+export class ProjectList {
+	// Input(from Parent)
+	projects = input<any[]>();
+	
+	// Output(to Parent)
+	toggleProject = output<number>();
+	
+	onToggle(id: number) {
+		this.toggleProject.emit(id);
+	}
+}
+```
+
+**project-list.html**
+
+```html
+<ul>
+	@for(project of projects(); track project.id) {
+		<li
+			(click)="onToggle(project.id)"
+			[class.completed]="project.status === 'completed'"
+		>
+			{{ project.name }} - {{ project.status }}
+		</li>
+	}
+</ul>
+```
+
+**project-list.css**
+
+```css
+li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.completed {
+  color: gray;
+  text-decoration: line-through;
+}
+
+li:hover {
+  background: #f1f5f9;
+}
+```
+
+### Step 3: Update dashboard(parent)
+
+**dashboard.ts**
+
+```tsx
+import { Component, signal, computed } from '@angular/core';
+import { TaskManager } ...
+import { ProjectLis } ...
+
+@Component({
+	selector: 'app-dashboard',
+	standalone: true,
+	imports: [TaskManager, ProjectList],
+	templateUrl: './dashboard.html',
+	styleUrls: ['./dashboard.css']
+})
+
+export class Dashboard {
+	// State
+	projects = signal([
+    { id: 1, name: 'Portfolio Website', status: 'active' },
+    { id: 2, name: 'AI Chat App', status: 'completed' },
+    { id: 3, name: 'E-commerce Platform', status: 'active' }
+  ]);
+  
+  showCompleted = signal(true);
+  
+  // Derived
+  totalProjects = computed(() => this.projects.length);
+  
+  filteredProjects = computed(() => 
+	  this.projects().filter(p =>
+		  this.showCompleted() || p.status !== 'completed'
+	  )
+  );
+  
+  // Handles child event
+  toggleProjectStatus(projectId: number) {
+	  this.projects.update(projects => 
+		  projects.map(p =>
+			  p.id === projectId
+			  ? {
+					  ...p,
+					  status: p.status === 'active' ? 'completed' : 'active'
+				  }
+				: p
+		  )
+	  );
+  }
+  
+  toggleCompleted() {
+	  this.showCompleted.update(v != v);
+  }
+}
+```
+
+**dashboard.html**
+
+```html
+<div class="dashboard">
+
+  <h2>Dashboard Overview</h2>
+
+  <!-- Stats -->
+  <div class="cards">
+    <div class="card">Total: {{ totalProjects() }}</div>
+  </div>
+
+  <!-- Toggle -->
+  <button (click)="toggleCompleted()">
+    Toggle Completed Projects
+  </button>
+
+  <!-- Child Component -->
+  <app-project-list
+    [projects]="filteredProjects()"
+    (toggleProject)="toggleProjectStatus($event)"
+  ></app-project-list>
+
+  <!-- Task Manager -->
+  <app-task-manager></app-task-manager>
+
+</div>
+```
+
+---
+
+## Extra Learning - related to Angular version updates
+
+> 
+> 
+> 
+> ### New standard of not using the file suffices - `<file-name>.component.ts`
+> 
+> Starting with **Angular 20** (released in 2025), the official recommendation for naming files has changed. The **latest version** favors the shorter `file-name.ts` format over the traditional `file-name.component.ts`.
+> 
+> **The New Standards (Angular 20+)**
+> In the most recent versions, Angular encourages removing the "type" suffix from the file name and the "Component" or "Service" suffix from the class name.
+> 
+> | **Feature** | **Legacy Convention (v2–v19)** | **Modern Convention (v20+)** |
+> | --- | --- | --- |
+> | **Component File** | `user-profile.component.ts` | `user-profile.ts` |
+> | **Component Class** | `export class UserProfileComponent` | `export class UserProfile` |
+> | **Service File** | `auth.service.ts` | `auth-store.ts` (or `auth-api.ts`) |
+> | **Directives** | `highlight.directive.ts` | `highlight.ts`  |
+> 
+> ### The Breakdown of `standalone: true` redundancy
+> 
+> - **Before (v14–v18):** You had to explicitly write `standalone: true` to opt into the standalone architecture.
+> - **Now (v19+):** All components, pipes, and directives are **standalone by default**. If you leave the flag out entirely, Angular assumes it is standalone.
+> - **The "New" Flag:** If you actually want to use the old `NgModule` pattern, you now have to explicitly write **`standalone: false`**.
 
 ---

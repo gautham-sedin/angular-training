@@ -1,0 +1,7 @@
+<div
+    class="project-item"
+    (click)="onToggle()"
+    [class.completed]="project().status === 'completed'"
+>
+    {{ project().name }} - {{ project().status }}
+</div>

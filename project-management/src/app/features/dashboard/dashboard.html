@@ -2,36 +2,44 @@
 
   <h2>Dashboard Overview</h2>
 
-  <!-- Stats -->
-  <div class="cards">
-    <div class="card">Total: {{ projectService.totalProjects() }}</div>
-    <div class="card">Active: {{ projectService.activeProjects() }}</div>
-    <div class="card">Completed: {{ projectService.completedProjects() }}</div>
-  </div>
+  @if (projectService.isLoading()) {
 
-  <!-- Input -->
-  <div class="input-section">
-    <input
-      type="text"
-      [value]="projectService.newProject()"
-      (input)="projectService.updateInput($any($event.target).value)"
-      placeholder="Enter new project..."
-    />
-    <button (click)="projectService.addProject()">Add Project</button>
-  </div>
+    <p>⏳ Loading projects...</p>
 
-  <!-- Toggle -->
-  <button (click)="projectService.toggleCompleted()">
-    Toggle Completed Projects
-  </button>
+  } @else {
 
-  <!-- Project List -->
-  <app-project-list
-    [projects]="projectService.filteredProjects()"
-    (toggleProject)="projectService.toggleProjectStatus($event)"
-  ></app-project-list>
+    <!-- Stats -->
+    <div class="cards">
+      <div class="card">Total: {{ projectService.totalProjects() }}</div>
+      <div class="card">Active: {{ projectService.activeProjects() }}</div>
+      <div class="card">Completed: {{ projectService.completedProjects() }}</div>
+    </div>
 
-  <!-- Task Manager -->
+    <!-- Input -->
+    <div class="input-section">
+      <input
+        type="text"
+        [value]="projectService.newProject()"
+        (input)="projectService.updateInput($any($event.target).value)"
+        placeholder="Enter new project..."
+      />
+      <button (click)="projectService.addProject()">Add Project</button>
+    </div>
+
+    <!-- Toggle -->
+    <button (click)="projectService.toggleCompleted()">
+      Toggle Completed Projects
+    </button>
+
+    <!-- Project List -->
+    <app-project-list
+      [projects]="projectService.filteredProjects()"
+      (toggleProject)="projectService.toggleProjectStatus($event)"
+    ></app-project-list>
+
+  }
+
+  <!-- Task Manager (still sync for now) -->
   <app-task-manager></app-task-manager>
 
 </div>

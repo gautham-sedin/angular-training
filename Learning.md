@@ -1086,6 +1086,17 @@ export class Dashboard {
 </div>
 ```
 
+## Day 4 – Section C: Micro-Project (Parent ↔ Child Communication in Action)
+
+### Goal
+
+Build a **mini “Project Toggle System”** using:
+
+- ✅ `input()` → pass data down
+- ✅ `output()` → send events up
+- ✅ Signals in parent (state owner)
+- ✅ Clean separation (Container vs Presentational)
+
 ---
 
 ## Extra Learning - related to Angular version updates
@@ -1112,5 +1123,520 @@ export class Dashboard {
 > - **Before (v14–v18):** You had to explicitly write `standalone: true` to opt into the standalone architecture.
 > - **Now (v19+):** All components, pipes, and directives are **standalone by default**. If you leave the flag out entirely, Angular assumes it is standalone.
 > - **The "New" Flag:** If you actually want to use the old `NgModule` pattern, you now have to explicitly write **`standalone: false`**.
+
+---
+
+# Day 5
+
+## Day 5 – Section A: Directives & Pipes (Modern Angular)
+
+Let’s explore on instead of building lot of components, Reactive signals → Instead control and transform the UI without bloating components
+
+| Concept | Purpose |
+| --- | --- |
+| **Directives** | Modify DOM behavior |
+| **Pipes** | Transform displayed data |
+
+### 1. Directives
+
+**Directives →** adds behavior to DOM elements.
+
+**Structural Directives:** Some we already use like `@if`  & `@for`. They will add/remove elements & control the rendering.
+
+**Attribute Directives:** Modify existing elements. 
+
+Some of the example built-in-
+
+```html
+<p [class.completed]="isDone">Task</p>
+<div [style.background]="'red'"></div>
+```
+
+**Creating Custom Directive:**
+
+Let’s create a custom directive called `highlight directive`. - Changing the color of the element based on the mouse interaction.
+
+**highlight.directive.ts**
+
+```tsx
+import { Directive, ElementRef, HostListener } from '@angular/core';
+
+@Directive({
+	selector: '[appHighlight]',
+	standalone: true
+})
+
+export class HighlightDirective {
+	constructor(private el: ElementRef) {}
+	
+	@HostListener('mouseeneter')
+	onEnter() {
+		this.el.nativeElement.style.backgroundColor = '#e0f2fe';
+	}
+	
+	@HostListener('mouseleave')
+	onLeave() {
+		this.el.nativeElement.style.backgroundColor = '';
+	}
+}
+```
+
+Usage on a html file-
+
+```html
+<li appHighlight>Hover me</li>
+```
+
+### 2. Pipes
+
+**Pipes →** transforms data before displaying it in the UI. For example as in the code-
+
+```html
+<p>{{ username | uppercase }}</p>
+```
+
+Fewer more examples on existing built-in pipes in Angular:
+
+- **DatePipe (`date`)**: Formats a date object, number, or ISO string.
+    - *Usage:* `{{ today | date:'shortTime' }}`
+- **CurrencyPipe (`currency`)**: Transforms a number into a currency string (e.g., USD, EUR).
+    - *Usage:* `{{ price | currency:'USD' }}`
+- **DecimalPipe (`number`)**: Formats a number with specific decimal points.
+    - *Usage:* `{{ pi | number:'1.1-2' }}`
+- **PercentPipe (`percent`)**: Converts a number to a percentage string.
+    - *Usage:* `{{ progress | percent }}`
+
+Let’s create a Custom Pipe that formats the Status-
+
+**status.pipe.ts**
+
+```tsx
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+	name: 'status',
+	standalone: true
+})
+
+export class StatusPipe implements PipeTransform {
+	transform(value: string): string {
+		return value === 'completed' ? '✅ Completed' : '⏳ Active';
+	}
+}
+```
+
+Usage in html code file-
+
+```html
+<p>{{ project.status | status }}</p>
+
+<!--
+	Instead of using the traditional way for formatting status-
+	<p>{{ project.status === 'completed' ? 'Done' : 'Pending' }}</p>
+-->
+```
+
+## Day 5 – Section B: Real-World Example (Polishing Your Dashboard with Directives & Pipes)
+
+Instead of the current dashboard that is working nice
+
+- Status text looks raw(active, completed)
+
+- UI feedback is minimal
+
+- Repeated logic exists in templates
+
+Now - let review few changes to update these Display formatted project status, Add hover interaction to project items.
+
+### Step 1: Create a Custom Pipe (Status Formatter)
+
+**shared/pipes/status.pipe.ts**
+
+```tsx
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+	name: 'status',
+	standalone: true
+})
+
+export class StatusPipe implements PipeTransform {
+	tranform(value: string): string {
+		return value === 'completed'
+		? '✅ Completed'
+    : '🚧 Active';
+	}
+}
+```
+
+**Apply pipe to the UI-**
+
+**project-item.html**
+
+```html
+<div
+  class="project-item"
+  (click)="onToggle()"
+  [class.completed]="project().status === 'completed'"
+>
+  {{ project().name }} - {{ project().status | status }}
+</div>
+```
+
+### Step 2: Create Custom Directive (Hover Highlight)
+
+**shared/directives/highlight.directive.ts**
+
+```tsx
+import { Directive, ElementRef, HostListener } from '@angular/core';
+
+@Directive({
+  selector: '[appHighlight]',
+  standalone: true
+})
+export class HighlightDirective {
+
+  constructor(private el: ElementRef) {}
+
+  @HostListener('mouseenter')
+  onEnter() {
+    this.el.nativeElement.style.backgroundColor = '#e0f2fe';
+  }
+
+  @HostListener('mouseleave')
+  onLeave() {
+    this.el.nativeElement.style.backgroundColor = '';
+  }
+}
+```
+
+Apply directive
+
+**project-item.component.ts**
+
+```tsx
+import { HighlightDirective } from '../../shared/directives/highlight.directive';
+
+@Component({
+  ...
+  imports: [HighlightDirective]
+})
+```
+
+**project-item.component.html**
+
+```html
+<div
+	appHighlight
+	class="project-item"
+	(click)="onToggle()"
+	[class.completed]="project().status === 'completed'"
+>
+	{{ project().name }} -> {{ project().status | status }}
+</div>
+```
+
+To improve the Visual Consistency - **project-item.component.css**
+
+```css
+.project-item {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.completed {
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+```
+
+## Day 5 – Section C: Micro-Project (Directive + Pipe Combined UI System)
+
+### Goal
+
+Build a **Task Status Board** where:
+
+- Tasks are displayed with **formatted status (Pipe)**
+- Rows have **interactive hover effects (Directive)**
+- UI is clean, reusable, and scalable
+
+👉 This simulates a real **Kanban-style UI behavior layer**
+
+**Setup-**
+
+```bash
+ng g c features/task-board --standalone
+ng g d shared/directives/highlight --standalone
+ng g p shared/pipes/priority --standalone
+```
+
+---
+
+# Day 6
+
+## Day 6 - Section A: Services & Dependency Injection(Modern Ang with `inject()`)
+
+In our current project -
+
+- State is scatttered across components
+- No shared logic
+- Hard to scale beyond few components
+
+We are supposed to 
+
+> Centralize State + Business logics
+> 
+
+### What is Service?
+
+A Service is a class that contains shared logic or state
+
+Example-
+
+| Service Type | Purpose |
+| --- | --- |
+| ProjectService | Manage project data |
+| AuthService | Handle login/logout |
+| ApiService | Handle HTTP calls |
+| StateService | Global state |
+
+Instead of ‘Each component managing their own data’ → Central services will own data & Components will consume it!
+
+### Dependency Injection
+
+Angular automatically provides instances of services whenever needed.
+
+**Without DI**
+
+```tsx
+const service = new ProjectService();
+```
+
+**With DI(Angular way)**
+
+```tsx
+constructor(private projectService: ProjectService) {}
+```
+
+**With modern `inject()` Angular way-**
+
+```tsx
+import { inject } from '@angular/core';
+
+projectService = inject(ProjectService);
+```
+
+### Creating a service
+
+1. **Generate a service**
+    
+    ```bash
+    ng g s core/services/project --skip-tests
+    ```
+    
+2. **project.service.ts**
+    
+    ```tsx
+    import { Injectable, signal } from '@angular/core';
+    
+    @Injectable({
+    	providedIn: 'root'
+    })
+    
+    export class ProjectService {
+    	// Global state
+    	projects = signal([
+    		{id: 1, name: 'Portfolio', status: 'active'},
+    		...
+    	]);
+    	
+    	addProject(name: string) {...}
+    	toggleProject(id: number) {...}
+    }
+    ```
+    
+3. **Using service in component**
+    
+    ```tsx
+    import { ProjectService } from '../../core/services/project.service';
+    
+    @Component({...})
+    
+    export class DashboardComponent {
+      projectService = inject(ProjectService);
+    
+      // Access state
+      projects = this.projectService.projects;
+    }
+    ```
+    
+
+### Data flow
+
+```tsx
+ProjectService (Signal State)
+        ↓
+DashboardComponent
+        ↓
+ProjectListComponent
+        ↓
+ProjectItemComponent
+```
+
+## Day 6 - Section B: Real-world example (Centralizing State with a Service)
+
+Refactor the last micro-project application -
+
+- **ProjectService is a single source of truth**
+- Component consumes state, not own it.
+- All updates go through the service.
+
+### Step 1: Strengthen Your Service (Add Derived State)
+
+**project.service.ts**
+
+```tsx
+import { Injectable, signal, computed } from '@angular/core';
+
+@Injectable({
+	providedIn: 'root'
+})
+
+export class ProjectService {
+	projects = signal([
+		{ id: 1, name: 'Portfolio Website', status: 'active' },
+    { id: 2, name: 'AI Chat App', status: 'completed' },
+    { id: 3, name: 'E-commerce Platform', status: 'active' }
+	]);
+	
+	showCompleted = signal(true);
+	
+	// Derived state
+	totalProjects = computed(() => this.projects().length);
+	
+	completedProjects = computed(() =>
+		this.projects().filter(p => p.status === 'completed').length
+	);
+	
+	activeProjects = computed(() =>
+		this.projects().filter(p => p.status === 'active').length
+	);
+	
+	filteredProjects = computed(() => 
+		this.projects().filter(p =>
+			this.showCompleted || p.status !== 'completed'
+		)
+	);
+	
+	// Actions
+	toggleCompletedVisibility() {
+		this.showCompleted.update(v != v);
+	}
+	
+	toggleProject(id: number) {
+		this.projects.update(projects =>
+			projects.map(p =>
+				p.id === id
+				? {
+						...p,
+						status: p.status === 'active' ? 'completed' : 'active'
+					}
+				: p
+			)
+		);
+	}
+	
+	addProject(name: string) {
+		this.projects.update(p => [
+			...p,
+			{ id: Date.now(), name, status: 'active' }
+		]);
+	}
+}
+```
+
+### Step 2: Refactor Dashboard(Remove local state)
+
+**dashboard.component.ts**
+
+```tsx
+import { Component, inject } from '@angular/core';
+import { ProjectService } from '../../core/services/project.service';
+import { ProjectListComponent } from '../project-list/project-list.component';
+import { TaskManagerComponent } from '../task-manager/task-manager.component';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [ProjectListComponent, TaskManagerComponent],
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css']
+})
+export class DashboardComponent {
+
+  projectService = inject(ProjectService);
+
+}
+```
+
+### Step 3: Update Template (Use service directly)
+
+```html
+<div class="dashboard">
+
+  <h2>Dashboard Overview</h2>
+
+  <!-- Stats -->
+  <div class="cards">
+    <div class="card">Total: {{ projectService.totalProjects() }}</div>
+    <div class="card">Active: {{ projectService.activeProjects() }}</div>
+    <div class="card">Completed: {{ projectService.completedProjects() }}</div>
+  </div>
+
+  <!-- Toggle -->
+  <button (click)="projectService.toggleCompletedVisibility()">
+    Toggle Completed Projects
+  </button>
+  
+	<app-project-list
+		[projects]="projectService.filteredProjects()"
+		(toggleProject)="projectService.toggleProject($event)"
+	>
+	</app-project-list>
+	
+	<app-task-manager></app-task-manager>
+</div>
+```
+
+### Step 4: No changes needed in Child components
+
+Your `ProjectListComponent`  and `ProjectItemComponents`:
+
+- Still receive data via `input()`
+- Still emit data via `output()`
+
+Now you can:
+
+- Add a **Projects Page** (reuse same service)
+- Add **Sidebar stats** (same data)
+- Connect **API later** without touching components
+
+## Day 6 – Section C: Micro-Project (Shared State with Service Across Components)
+
+### 🎯 Goal
+
+Build a **Shared Counter System** where:
+
+- Multiple components read/write the **same state**
+- State lives in a **Service (single source of truth)**
+- UI updates automatically using **Signals**
+
+👉 This mimics real-world patterns like:
+
+- Cart count in e-commerce
+- Notifications badge
+- Global counters / dashboards
 
 ---

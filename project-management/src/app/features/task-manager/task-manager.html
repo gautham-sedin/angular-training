@@ -4,31 +4,31 @@
 
   <!-- Stats -->
   <div class="stats">
-    <span>Active: {{ activeCount() }}</span>
-    <span>Completed: {{ completedCount() }}</span>
+    <span>Active: {{ taskService.activeCount() }}</span>
+    <span>Completed: {{ taskService.completedCount() }}</span>
   </div>
 
   <!-- Input -->
   <div class="input-section">
     <input
       type="text"
-      [value]="newTask()"
-      (input)="updateInput($any($event.target).value)"
+      [value]="taskService.newTask()"
+      (input)="taskService.updateInput($any($event.target).value)"
       placeholder="Enter new task..."
     />
-    <button (click)="addTask()">Add</button>
+    <button (click)="taskService.addTask()">Add</button>
   </div>
 
   <!-- Toggle -->
-  <button (click)="toggleCompletedVisibility()">
+  <button (click)="taskService.toggleCompletedVisibility()">
     Toggle Completed Tasks
   </button>
 
   <!-- Task List -->
   <ul>
-    @for (task of filteredTasks(); track task.id) {
+    @for (task of taskService.filteredTasks(); track task.id) {
       <li
-        (click)="toggleTask(task.id)"
+        (click)="taskService.toggleTask(task.id)"
         [class.completed]="task.completed"
       >
         {{ task.title }}

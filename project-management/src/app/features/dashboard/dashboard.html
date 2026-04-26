@@ -4,34 +4,34 @@
 
   <!-- Stats -->
   <div class="cards">
-    <div class="card">Total: {{ totalProjects() }}</div>
-    <div class="card">Active: {{ activeProjects() }}</div>
-    <div class="card">Completed: {{ completedProjects() }}</div>
+    <div class="card">Total: {{ projectService.totalProjects() }}</div>
+    <div class="card">Active: {{ projectService.activeProjects() }}</div>
+    <div class="card">Completed: {{ projectService.completedProjects() }}</div>
   </div>
 
   <!-- Input -->
   <div class="input-section">
     <input
       type="text"
-      [value]="newProject()"
-      (input)="updateInput($any($event.target).value)"
+      [value]="projectService.newProject()"
+      (input)="projectService.updateInput($any($event.target).value)"
       placeholder="Enter new project..."
     />
-    <button (click)="addProject()">Add Project</button>
+    <button (click)="projectService.addProject()">Add Project</button>
   </div>
 
   <!-- Toggle -->
-  <button (click)="toggleCompleted()">
+  <button (click)="projectService.toggleCompleted()">
     Toggle Completed Projects
   </button>
 
-  <!-- Clean Component Usage -->
+  <!-- Project List -->
   <app-project-list
-    [projects]="filteredProjects()"
-    (toggleProject)="toggleProjectStatus($event)"
+    [projects]="projectService.filteredProjects()"
+    (toggleProject)="projectService.toggleProjectStatus($event)"
   ></app-project-list>
 
-  <!-- Tasks Manager for each of whole project management -->
-   <app-task-manager></app-task-manager>
+  <!-- Task Manager -->
+  <app-task-manager></app-task-manager>
 
 </div>

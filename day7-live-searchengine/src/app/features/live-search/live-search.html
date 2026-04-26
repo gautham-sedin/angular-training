@@ -1,0 +1,17 @@
+<div class="search-container">
+
+  <h2>Live Search</h2>
+
+  <input
+    type="text"
+    [formControl]="searchControl"
+    placeholder="Search technologies..."
+  />
+
+  <ul>
+    @for (item of results(); track item) {
+      <li>{{ item }}</li>
+    }
+  </ul>
+
+</div>

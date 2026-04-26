@@ -1640,3 +1640,300 @@ Build a **Shared Counter System** where:
 - Global counters / dashboards
 
 ---
+
+# Day 7
+
+## Day 7 – Section A: RxJS & Observables (Modern Angular + Signals Bridge)
+
+So far, the application handles - 
+
+- Local + global states
+- UI updates
+
+But real world applications need - 
+
+**Asynchronous data (like APIs, user events, streams)**
+
+### What is RxJS?
+
+**RxJS** is a library for handling data streams over time.
+
+### What is Observables?
+
+An **Observable** is a stream that emits values over time.
+
+Examples:
+
+```tsx
+// Example of usual arrays
+const streams = [1, 2, 3];
+
+// Example of Observables
+const streams$ = Observable -> emits 1 -> 2 -> 3 over time
+```
+
+Some of the usecases of Observables are -
+
+In API Calls, They act as HTTP Response - In Search inputs, as user typing - In Websockets, live updates the values - In Timers, interval updating.
+
+| Feature | Signal | Observable |
+| --- | --- | --- |
+| Nature | Synchronous | Asynchronous |
+| Use case | UI state | Data streams |
+| Simplicity | Easy | Powerful |
+| Push updates | Yes | Yes |
+
+### 1. Creating an Observable
+
+**Basic example implementation-**
+
+```tsx
+import { Observable } from 'rxjs';
+const obs$ = new Observable(observer => {
+	observer.next(1);
+	observer.next(2);
+	observer.next(3);
+})
+```
+
+**Subscribing to Observable**
+
+```tsx
+obs$.subscribe(value =>{
+	console.log(value);
+})
+```
+
+### 2. Common RxJS creators
+
+1. `of()`  → simple values
+    
+    ```tsx
+    import { of } from 'rxjs';
+    
+    of(1, 2, 3).subscribe(console.log);
+    ```
+    
+2. `from()` → arrays/promises
+    
+    ```tsx
+    from([1, 2, 3]).subscribe(console.log);
+    ```
+    
+3. `interval()` → emits over time
+    
+    ```tsx
+    import { interval } from 'rxjs';
+    
+    interval(1000).subscribe(val => console.log(val));
+    ```
+    
+
+### 3. Operators (Core power of RxJS)
+
+→ Operators transform stream
+
+1. `map()` operator
+    
+    ```tsx
+    import { map } from 'rxjs/operators';
+    
+    of(1, 2, 3)
+    	.pipe(map(x => x * 2))
+    	.subscribe(console.log);
+    ```
+    
+2. `filter()` operator
+    
+    ```tsx
+    import { filter } from 'rxjs/operator';
+    
+    of(1, 2, 3, 4)
+    	.pipe(filter(x => x % 2 === 0))
+    	.subscribe(console.log);
+    ```
+    
+
+### 4. Use cases of Angular + RxJS
+
+RxJS is heavily used in Angular mainly in these areas - 
+
+→ HTTP (`HttpClient`)
+
+→ Router events
+
+→ Forms (valueChanges)
+
+→ Async pipes
+
+### 5. Signals + RxJS (Modern Ang Pattern)
+
+→ Signals acts as the state
+
+→ Observables which are the async
+
+combines together using `toSignal()` 
+
+```tsx
+import { toSignal } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
+
+counter$ = interval(1000);
+
+counter = toSignal(this.counter$, { initialValue: 0 });
+```
+
+**Template:**
+
+```html
+<h2>{{ counter() }}</h2>
+```
+
+## **Day 7 – Section B: Real-World Example (Simulating API Data with RxJS → Signals)**
+
+Right now, `ProjectService` has hardcoded data, While in real-apps
+
+→ Data comes from APIs
+
+→ Arrives asynchronously
+
+→ Changes over time. 
+
+Lets simulate an API using RxJS and convert it into signals
+
+→ Fetch pjts from fake APIs → Show loading state → Update UI automatically → Keep everything signal-driven
+
+### Step 1: Simulate API using RxJS
+
+**project.service.ts**
+
+```tsx
+import { Injectable, signal, computed } from '@angular/core';
+import { of, delay } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ProjectService {
+
+  // 🔹 Simulated API
+  private projects$ = of([
+    { id: 1, name: 'Portfolio Website', status: 'active' },
+    { id: 2, name: 'AI Chat App', status: 'completed' },
+    { id: 3, name: 'E-commerce Platform', status: 'active' }
+  ]).pipe(delay(2000)); // simulate network delay
+
+	// Convert Observable -> Signals
+	projects = toSignal(this.project$, { initialValue: [] });
+
+  showCompleted = signal(true);
+
+  // 🔹 Derived
+  totalProjects = computed(() => this.projects().length);
+
+  completedProjects = computed(() =>
+    this.projects().filter(p => p.status === 'completed').length
+  );
+
+  activeProjects = computed(() =>
+    this.projects().filter(p => p.status === 'active').length
+  );
+
+  filteredProjects = computed(() =>
+    this.projects().filter(p =>
+      this.showCompleted() || p.status !== 'completed'
+    )
+  );
+
+  // 🔹 Actions
+  toggleCompleted() {
+    this.showCompleted.update(v => !v);
+  }
+
+  toggleProjectStatus(projectId: number) {
+    this.projects.update(projects =>
+      projects.map(p =>
+        p.id === projectId
+          ? {
+              ...p,
+              status: p.status === 'active' ? 'completed' : 'active'
+            }
+          : p
+      )
+    );
+  }
+}
+```
+
+### Step 2: Add Loading State
+
+**Update service:**
+
+```tsx
+isLoading = signal(true);
+
+constructor() {
+	this.project$.subscribe(() =>{
+		this.isLoading.set(false);
+	})
+}
+```
+
+### Step 3: Update Dashboard UI
+
+```html
+<div class="dashboard">
+
+  <h2>Dashboard Overview</h2>
+
+  @if (projectService.isLoading()) {
+    <p>Loading projects...</p>
+  } @else {
+
+    <!-- Stats -->
+    <div class="cards">
+      <div class="card">Total: {{ projectService.totalProjects() }}</div>
+      <div class="card">Active: {{ projectService.activeProjects() }}</div>
+      <div class="card">Completed: {{ projectService.completedProjects() }}</div>
+    </div>
+
+    <!-- Toggle -->
+    <button (click)="projectService.toggleCompleted()">
+      Toggle Completed Projects
+    </button>
+
+    <!-- Project List -->
+    <app-project-list
+      [projects]="projectService.filteredProjects()"
+      (toggleProject)="projectService.toggleProjectStatus($event)"
+    ></app-project-list>
+
+  }
+
+  <!-- Task Manager still local -->
+  <app-task-manager></app-task-manager>
+
+</div>
+```
+
+## Day 7 – Section C: Micro-Project (Live Search with RxJS → Signals)
+
+---
+
+### 🎯 Goal
+
+Build a **Live Search Component** that:
+
+- Takes user input
+- Simulates API calls (debounced)
+- Uses RxJS operators
+- Converts results into a **Signal for UI rendering**
+
+👉 This mimics real features like:
+
+- Search bars
+- Autocomplete
+- Filters
+
+---

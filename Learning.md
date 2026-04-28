@@ -2134,3 +2134,182 @@ Build a **mini multi-page app** with:
 👉 This mirrors real apps with **public vs protected pages**
 
 ---
+
+# Day 9
+
+## Day 9 – Section A: Reactive Forms (Modern Angular + Signals Mindset)
+
+So far, Inputs are -
+
+- Basic(input + signals)
+- Manual handling((input) events)
+
+We need-
+
+- Complex forms with multiple fields
+- Input validations
+- Error handling
+
+### What is Reactive Forms?
+
+> A Reactive form is a model-driven way to manage form state. Instead of HTML controlling everything - Typescript controls the form.
+> 
+
+### Core Building Blocks
+
+`FormControl`
+
+```tsx
+import { FormControl } from '@angular/core';
+
+name = new FormControl('');
+```
+
+`FormGroup`
+
+```tsx
+import { FormGroup, FormControl } from '@angular/forms';
+
+form = new FormGroup({
+	name: new FormControl('');
+	email: new FormControl('');
+});
+```
+
+**and Then connect the Form to the Template**
+
+Creating a FormComponent → Integrating whole of the FormGroup with FormControls.
+
+### Validation
+
+Add validations and declare them in Typescript, and then integrate them in Template for the UI.
+
+```tsx
+import { Validators } from '@angular/core';
+
+form = new FormGroup({
+	name: new FormControl('', [Validators.required]),
+	email: new FormControl('', [Validators.required, Validators.email])
+});
+```
+
+```html
+@if (form.controls.name.invalid && form.controls.name.touched) {
+	<p>Name is required</p>
+}
+```
+
+For reading the Form values, use `submit()` function.
+
+### Reactive forms vs Template forms
+
+| Feature | Reactive | Template |
+| --- | --- | --- |
+| Control | TS-driven | HTML-driven |
+| Scalability | High | Low |
+| Validation | Powerful | Limited |
+| Recommendation | ✅ Use this | ❌ Avoid for large apps |
+
+## Day 9 – Section B: Real-World Example (Replacing Ad-hoc Inputs with Reactive Forms)
+
+With respect to the project that we did recently, Upgrade your **Projects Page** to:
+
+- Use a **FormGroup**
+- Validate input (required + min length)
+- Show **inline validation errors**
+- Disable submit when invalid
+
+Remove this line - and replace with the Form validation logics - 
+
+```tsx
+newProject = signal('')
+```
+
+**features/projects.ts**
+
+```tsx
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+
+@Component({
+	selectors: ...
+	imports: ...
+})
+
+export class Projects {
+	projectService = inject(ProjectService);
+	
+	projectForm = new FormGroup({
+		name: new FormControl('', [
+			Validators.required,
+			Validators.minLength(3)
+		])
+	});
+	
+	// Submit handler
+	addProject() {
+		if(this.projectForm.invalid) return;
+		
+		const name = this.projectForm.value.name!;
+		this.projectService.addProject(name);
+		
+		this.projectForm.reset();
+	}
+}
+```
+
+**Update the template-**
+
+```tsx
+<h2>All Projects</h2>
+
+<!-- FORM -->
+<form [formGroup]="ProjectForm" (ngSubmit)="addProject()">
+	<div class="input-section">
+		<input
+			type="text"
+			formControlName="name"
+			placeholder="Create new project"
+		/>
+		
+		<button type="submit" [disabled]="projectForm.invalid">
+			Add
+		</button>	
+		</div>
+		
+		<!-- Validation -->
+		@if(projectForm.controls.name.touched && projectForm.controls.name.invalid) {
+			@if(projectForm.controls.name.errors?.['required']) {
+				<p class="error">Project name is required</p>
+			}
+			@if(projectForm.controls.name.errors?.['minLength']) {
+				<p class="error">Minimum 3 characters required</p>
+			}
+		}
+</form>
+...
+```
+
+| Feature | Before | After |
+| --- | --- | --- |
+| Input handling | Manual | Reactive |
+| Validation | None | Built-in |
+| UX | Basic | Professional |
+| Scalability | Low | High |
+
+## Day 9 – Section C: Micro-Project (Advanced Reactive Form + Signals Integration)
+
+---
+
+### 🎯 Goal
+
+Build a **Task Creation Form** with:
+
+- ✅ Multiple fields (title, priority, due date)
+- ✅ Validation (required, min length)
+- ✅ Reactive Forms (`FormGroup`)
+- ✅ Signal integration (`toSignal`)
+- ✅ Live preview of form data
+
+👉 This simulates a **real product form (not basic input)**
+
+---

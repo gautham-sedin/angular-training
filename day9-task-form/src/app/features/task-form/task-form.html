@@ -1,0 +1,42 @@
+<div class="task-form">
+
+  <h2>Create Task</h2>
+
+  <form [formGroup]="taskForm" (ngSubmit)="submit()">
+
+    <!-- Title -->
+    <input
+      type="text"
+      formControlName="title"
+      placeholder="Task title"
+    />
+
+    <!-- Validation -->
+    @if (taskForm.controls.title.touched && taskForm.controls.title.invalid) {
+      <p class="error">Title must be at least 3 characters</p>
+    }
+
+    <!-- Priority -->
+    <select formControlName="priority">
+      <option value="high">🔴 High</option>
+      <option value="medium">🟡 Medium</option>
+      <option value="low">🟢 Low</option>
+    </select>
+
+    <!-- Due Date -->
+    <input type="date" formControlName="dueDate" />
+
+    <!-- Submit -->
+    <button type="submit" [disabled]="taskForm.invalid">
+      Create Task
+    </button>
+
+  </form>
+
+  <!-- 🔥 Live Preview (Signal) -->
+  <div class="preview">
+    <h3>Live Preview</h3>
+    <pre>{{ formValue() | json }}</pre>
+  </div>
+
+</div>

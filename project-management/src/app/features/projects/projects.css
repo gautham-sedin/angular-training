@@ -1,0 +1,14 @@
+.projects-page {
+  padding: 20px;
+}
+
+.empty {
+  margin-top: 20px;
+  color: #64748b;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: -5px;
+}

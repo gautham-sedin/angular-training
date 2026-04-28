@@ -1,6 +1,6 @@
 <div class="dashboard">
 
-  <h2>Dashboard Overview</h2>
+  <h2>📊 Dashboard Overview</h2>
 
   @if (projectService.isLoading()) {
 
@@ -15,31 +15,14 @@
       <div class="card">Completed: {{ projectService.completedProjects() }}</div>
     </div>
 
-    <!-- Input -->
-    <div class="input-section">
-      <input
-        type="text"
-        [value]="projectService.newProject()"
-        (input)="projectService.updateInput($any($event.target).value)"
-        placeholder="Enter new project..."
-      />
-      <button (click)="projectService.addProject()">Add Project</button>
-    </div>
+    <!-- Recent Projects Preview -->
+    <h3>Recent Projects</h3>
 
-    <!-- Toggle -->
-    <button (click)="projectService.toggleCompleted()">
-      Toggle Completed Projects
-    </button>
-
-    <!-- Project List -->
     <app-project-list
-      [projects]="projectService.filteredProjects()"
+      [projects]="projectService.projects().slice(0, 3)"
       (toggleProject)="projectService.toggleProjectStatus($event)"
     ></app-project-list>
 
   }
-
-  <!-- Task Manager (still sync for now) -->
-  <app-task-manager></app-task-manager>
 
 </div>

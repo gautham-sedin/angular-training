@@ -7,7 +7,7 @@ import { Dashboard } from './features/dashboard/dashboard';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [Navbar, Sidebar, Dashboard],
+  imports: [Navbar, Sidebar, Dashboard, RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

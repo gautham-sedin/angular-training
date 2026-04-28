@@ -11,7 +11,6 @@ export class Task {
     { id: 3, title: 'Write tests', completed: false },
   ]);
 
-  newTask = signal('');
   showCompleted = signal(true);
 
   // Derived
@@ -30,20 +29,14 @@ export class Task {
   );
 
   // Actions
-  updateInput(value: string) {
-    this.newTask.set(value);
-  }
-
-  addTask() {
-    const title = this.newTask().trim();
-    if (!title) return;
+  addTask(title: string) {
+    const trimmed = title.trim();
+    if(!trimmed) return;
 
     this.tasks.update(tasks => [
       ...tasks,
-      { id: Date.now(), title, completed: false }
+      { id: Date.now(), title: trimmed, completed: false }
     ]);
-
-    this.newTask.set('');
   }
 
   toggleTask(taskId: number) {

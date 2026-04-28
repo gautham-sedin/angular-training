@@ -1,0 +1,45 @@
+<div class="projects-page">
+
+  <h2>📁 All Projects</h2>
+
+  <!-- FORM -->
+  <form [formGroup]="projectForm" (ngSubmit)="addProject()">
+
+    <div class="input-section">
+      <input
+        type="text"
+        formControlName="name"
+        placeholder="Create new project..."
+      />
+
+      <button type="submit" [disabled]="projectForm.invalid">
+        Add
+      </button>
+    </div>
+
+    <!-- Validation -->
+    @if (projectForm.controls.name.touched && projectForm.controls.name.invalid) {
+
+      @if (projectForm.controls.name.errors?.['required']) {
+        <p class="error">Project name is required</p>
+      }
+
+      @if (projectForm.controls.name.errors?.['minlength']) {
+        <p class="error">Minimum 3 characters required</p>
+      }
+
+    }
+
+  </form>
+
+  <!-- Empty State -->
+  @if (projectService.projects().length === 0) {
+    <p class="empty">No projects yet. Start by adding one 🚀</p>
+  } @else {
+    <app-project-list
+      [projects]="projectService.filteredProjects()"
+      (toggleProject)="projectService.toggleProjectStatus($event)"
+    ></app-project-list>
+  }
+
+</div>

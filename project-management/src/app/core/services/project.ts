@@ -11,7 +11,6 @@ export class Project {
 
   isLoading = signal(true);
   showCompleted = signal(true);
-  newProject = signal('');
 
   // 🔹 Simulated API
   private projects$ = of([
@@ -46,21 +45,15 @@ export class Project {
   );
 
   // 🔹 Actions
-  updateInput(value: string) {
-    this.newProject.set(value);
-  }
+  addProject(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return;
 
-  addProject() {
-    const name = this.newProject().trim();
-    if (!name) return;
-
-    this.projects.update(p => [
-      ...p,
-      { id: Date.now(), name, status: 'active' }
-    ]);
-
-    this.newProject.set('');
-  }
+  this.projects.update(p => [
+    ...p,
+    { id: Date.now(), name: trimmed, status: 'active' }
+  ]);
+}
 
   toggleCompleted() {
     this.showCompleted.update(v => !v);

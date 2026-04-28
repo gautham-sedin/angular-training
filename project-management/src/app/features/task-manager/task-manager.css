@@ -44,3 +44,8 @@ li {
   text-decoration: line-through;
   color: gray;
 }
+
+.error {
+  color: #ef4444;
+  font-size: 13px;
+}

@@ -1937,3 +1937,200 @@ Build a **Live Search Component** that:
 - Filters
 
 ---
+
+# Day 8
+
+## Day 8 - Section A: Routing + Lazy loading + Guards(Modern Standalone Ang)
+
+So far, the whole app is a single page dashboard. But real application often has-
+
+- Multiple pages
+- Navigation
+- Access control
+- Performance Optimizations.
+
+### What is Routing?
+
+> Routing allows navigation between different views without reloading the page.
+> 
+
+```html
+/dashboard
+/projects
+/tasks
+/settings
+```
+
+`app.route.ts` → is used in Angular to define Routes, that consists of the path, Component that needs to be loaded.
+
+1. Always define the route in the `app.route.ts` file.
+2. Then, enable the router in the `app.config.ts`  file with **`provideRouter`**.
+3. Add Router outlet in the app HTML file.
+
+### What is `<router-outlet>`?
+
+> Placeholder where Angular renders routed components
+> 
+1. Finally, in the respective page, define the Navigation Router links in their HTML page with anchor tag.
+
+### Route Guard
+
+> Controls whether the route can be accessed.
+> 
+
+Example usecase-
+
+| Scenario | Guard |
+| --- | --- |
+| User must login | AuthGuard |
+| Admin only page | RoleGuard |
+| Prevent unsaved exit | CanDeactivate |
+
+**To create Guard → always use this command**
+
+```bash
+ng g guard core/guards/auth --functional
+```
+
+### Lazy loading vs Early loading
+
+| Type | Behavior |
+| --- | --- |
+| Eager | Load everything at start |
+| Lazy | Load when needed |
+
+---
+
+## Day 8 – Section B: Real-World Example (Turning Your Dashboard into a Multi-Page App)
+
+**Real-World Requirement-**
+
+Refactor your app to:
+
+`/dashboard` → Projects overview
+
+`/tasks` → Task management page
+
+Sidebar → navigates between pages
+
+Use **lazy-loaded standalone components**
+
+### Step 1: Define Routes
+
+**app.route.ts**
+
+```tsx
+import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+	{
+		path: '',
+		redirectTo: 'dashboard',
+		pathMath: 'full'
+	},
+	{
+		path: 'dashboard',
+		loadComponent: () =>
+			import('./features/dashboard/dashboard')
+				.then(m => m.Dashboard)
+	},
+	{
+		path: 'tasks',
+		loadComponent: () =>
+			import('./features/task-manager/task-manager')
+				.then(m => m.TaskManager)
+	}
+];
+```
+
+### Step 2: Update Root layout
+
+**app.component.html**
+
+```html
+<app-navbar></app-navbar>
+
+<div class="app-container">
+	<app-sidebar></app-sidebar>
+	
+	<main class="main-content">
+		<router-outlet></router-outlet>
+	</main>
+</div>
+```
+
+### Step 3: Enable Router
+
+**app.config.ts**
+
+```tsx
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+	providers: [
+		provideRouter(routes)
+	]
+};
+```
+
+### Step 4: Update Individual component Navigation
+
+**sidebar.component.ts**
+
+```tsx
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+
+@Component({
+	selector: 'app-sidebar',
+	standalone: true,
+	imports: [RouterModule],
+	templateUrls: './sidebar.component.html'
+})
+export class Sidebar {}
+```
+
+**sidebar.component.html**
+
+```html
+<aside class="sidebar">
+	<ul>
+		<li><a routerLink="/dashboard">Dashboard</a></li>
+		<li><a routerLink="/tasks">Tasks</a></li>
+	</ul>
+</aside>
+```
+
+### Step 5: Refactor Dashboard (Important)
+
+**Remove this from `dashboard.html`**
+
+```tsx
+<app-task-manager></app-task-manager>
+```
+
+### Step 6: Verify Lazy Loading
+
+Open DevTools → Network tab:
+
+- Navigate to `/tasks`
+- You’ll see Angular load that chunk **only when needed**
+
+---
+
+## Day 8 – Section C: Micro-Project (Multi-Page App with Routing + Guard)
+
+### 🎯 Goal
+
+Build a **mini multi-page app** with:
+
+- ✅ Routing (`/home`, `/admin`)
+- ✅ Lazy-loaded standalone components
+- ✅ Route Guard (protect admin page)
+- ✅ Navigation via sidebar
+
+👉 This mirrors real apps with **public vs protected pages**
+
+---

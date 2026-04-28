@@ -10,6 +10,7 @@
   cursor: pointer;
 }
 
-.sidebar .active {
+.active {
   font-weight: bold;
+  color: #3b82f6;
 }
